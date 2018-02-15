@@ -1,6 +1,7 @@
 module Main where
 
 import Data.Time.Clock.POSIX
+import Data.Time.Format
 
 -- QUESTION: What is strict v.s. lazy??
 
@@ -20,6 +21,7 @@ initBlock = Block
     , prevHash  = "0"
     }
 
+
 newBlock :: Block -> Block
 newBlock (Block{height = h}) = Block
     { height    = h + 1
@@ -28,9 +30,18 @@ newBlock (Block{height = h}) = Block
     , prevHash  = "1"             -- Needs to be calculated
     }
 
-data Blockchain = Blockchain
-    { blocks :: [Block]
-    }
+-- | TODO
+-- 1. Hash them to a SHA256 string
+-- 2. Calculate a nonce
+hashBlock :: Block -> IO String
+hashBlock (Block{height = h, timestamp = t, nonce = n, prevHash = p})
+    = do
+      time <- t
+      let ts = formatTime defaultTimeLocale "%s" (posixSecondsToUTCTime time)
+      return $ show h ++ show n ++ p ++ ts
+
+
+data Blockchain = Blockchain { blocks :: [Block] }
 
 initBlockchain :: Blockchain
 initBlockchain = Blockchain
@@ -38,10 +49,7 @@ initBlockchain = Blockchain
     }
 
 addBlock :: Blockchain -> Blockchain
-addBlock (Blockchain {blocks = b}) = Blockchain
-  { blocks = (b ++ [last b])
-  }
+addBlock (Blockchain {blocks = b}) = Blockchain { blocks = (b ++ [last b]) }
 
 main :: IO ()
-main = do
-  print . floor =<< getPOSIXTime
+main = print "It runs."
