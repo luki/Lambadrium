@@ -42,8 +42,7 @@ hashBlock :: Block -> IO String
 hashBlock (Block{height = h, timestamp = t, nonce = n, prevHash = p}) = do
     time <- t
     let ts = formatTime defaultTimeLocale "%s" (posixSecondsToUTCTime time)
-
-    return $ hashStr $ show h ++ show n ++ p ++ ts
+    let hash = hashStr $ show h ++ show n ++ p ++ ts
 
 hashStr :: String -> String
 hashStr s = concatMap (printf "%02x") $ -- To Hex Str

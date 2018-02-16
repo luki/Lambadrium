@@ -1,10 +1,4 @@
-# Chained CommaS
-The very first Blockchain for communists.
+# Rubrum 
+It means red, which stands for _R E V O L U T I O N_!!
 
-## How is it different?
-We are the revolution! Reasons will follow. 
-
-## Note
-Expropriate bitcoin owners now and ban them from using the computer!
-
-
+An actual README will follow sometime soon.
