@@ -5,7 +5,7 @@ import Data.Time.Format
 
 import Data.Char                (ord)
 import Data.ByteString          (unpack, pack)
-import Crypto.Hash.SHA256       as SHA256
+import Crypto.Hash.SHA256
 import Text.Printf              (printf)
 
 -- QUESTION: What is strict v.s. lazy??
@@ -49,11 +49,12 @@ hashBlock (Block{height = h, timestamp = t, nonce = n, prevHash = p}) = do
 
 -- A function to hash a String (with SHA256)
 hashStr :: String -> String
-hashStr s = concatMap (printf "%02x") $ -- To Hex Str
-            unpack $
-            hash $
-            pack $
-            map (fromIntegral.ord) s
+hashStr s =
+    concatMap (printf "%02x") $ -- To Hex
+    unpack $
+    hash $
+    pack $
+    map (fromIntegral.ord) s
 
 data Blockchain = Blockchain { blocks :: [Block] }
 
@@ -63,12 +64,13 @@ initBlockchain = Blockchain
     }
 
 addBlock :: Blockchain -> Blockchain
-addBlock (Blockchain {blocks = b}) = Blockchain { blocks = (b ++ [last b]) }
+addBlock (Blockchain {blocks = b}) = Blockchain { blocks = b ++ new }
+  where new = [newBlock $ last b]
 
 main :: IO ()
 main = do
-  -- let b = initBlock
-  -- str <- hashBlock b
-  -- print str
+    let b = initBlock
+    str <- hashBlock b
+    print str
 
-  print "It runs."
+    print "It runs."
