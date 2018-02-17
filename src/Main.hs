@@ -15,37 +15,37 @@ strToIOStr str = do return str
 
 data Block = Block
     { height    :: Int
-    , timestamp :: IO POSIXTime
+    , timestamp :: POSIXTime
     , nonce     :: Int
-    , prevHash  :: IO String
+    , prevHash  :: String
     }
 
 -- Creates the 'Genesis' block
-initBlock :: Block
-initBlock = Block
-    { height    = 0
-    , timestamp = getPOSIXTime
-    , nonce     = 0               -- Needs to be calculated
-    , prevHash  = strToIOStr "0"
-    }
+initBlock :: IO Block
+initBlock = do
+    t <- getPOSIXTime
+    return $ Block
+        { height    = 0
+        , timestamp = t
+        , nonce     = 0               -- Needs to be calculated
+        , prevHash  = "0"
+        }
 
 -- Creates a new block with a prev. block
-newBlock :: Block -> Block
-newBlock (b@Block{height = h}) = Block
+newBlock :: Block -> POSIXTime -> Block
+newBlock (b@Block{height = h}) time = Block
     { height    = h + 1
-    , timestamp = getPOSIXTime
+    , timestamp = time
     , nonce     =  3              -- Needs to be calculated
     , prevHash  = hashBlock b
     }
 
 -- | TODO
 -- 1. Calculate a nonce
-hashBlock :: Block -> IO String
-hashBlock (Block{height = h, timestamp = t, nonce = n, prevHash = p}) = do
-    prevHash <- p
-    time <- t
-    let ts = formatTime defaultTimeLocale "%s" (posixSecondsToUTCTime time)
-    return $ hashStr $ show h ++ show n ++ prevHash ++ ts
+hashBlock :: Block -> String
+hashBlock (Block{height = h, timestamp = t, nonce = n, prevHash = p}) =
+    let ts = formatTime defaultTimeLocale "%s" (posixSecondsToUTCTime t)
+     in hashStr $ show h ++ show n ++ p ++ ts
 
 -- A function to hash a String (with SHA256)
 hashStr :: String -> String
@@ -58,19 +58,22 @@ hashStr s =
 
 data Blockchain = Blockchain { blocks :: [Block] }
 
-initBlockchain :: Blockchain
-initBlockchain = Blockchain
-    { blocks = [initBlock]
-    }
+initBlockchain :: IO Blockchain
+initBlockchain = do
+    i <- initBlock
+    return $ Blockchain { blocks = [i] }
 
-addBlock :: Blockchain -> Blockchain
-addBlock (Blockchain {blocks = b}) = Blockchain { blocks = b ++ new }
-  where new = [newBlock $ last b]
+addBlock :: Blockchain -> IO Blockchain
+addBlock (Blockchain {blocks = b}) = new >>= \n -> return $ Blockchain { blocks = n : b }
+   where
+       new = do
+           let l = last b
+           stamp <- getPOSIXTime
+           return $ newBlock l stamp
 
 main :: IO ()
 main = do
-    let b = initBlock
-    str <- hashBlock b
-    print str
-
-    print "It runs."
+    chain <- initBlockchain
+    newChain <- addBlock chain
+    putStrLn . hashBlock . head . blocks $ newChain
+    putStrLn "Runs :D"
