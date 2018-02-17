@@ -25,4 +25,8 @@ executable Rubrum
                        cryptohash-sha256 -any
 
   hs-source-dirs:      src
+                          /Models
+                            /Blocks.hs
+                            /Blockchain.hs
+
   default-language:    Haskell2010

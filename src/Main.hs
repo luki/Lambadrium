@@ -47,8 +47,6 @@ newBlock (b@Block{height = h}) time = Block
     , prevHash  = hashBlock b
     }
 
--- | TODO
--- 1. Calculate a nonce
 hashBlock :: Block -> String
 hashBlock (Block{height = h, timestamp = t, nonce = n, prevHash = p}) =
     let ts = formatTime defaultTimeLocale "%s" (posixSecondsToUTCTime t)
@@ -63,10 +61,13 @@ hashStr s =
     pack $
     map (fromIntegral.ord) s
 
-calculateNonce :: Block -> Int -> Block
-calculateNonce (b@Block{height = h, timestamp = t, nonce = n, prevHash = p}) d
+-- | This function takes in a block and a difficulty
+-- It then return the same block with a nonce
+-- That satisfies the given difficulty
+mineBlock :: Block -> Int -> Block
+mineBlock (b@Block{height = h, timestamp = t, nonce = n, prevHash = p}) d
     | firstOfHash == difRequirement = b
-    | otherwise = calculateNonce newBlock d
+    | otherwise = mineBlock newBlock d
   where
       difRequirement = repeatElem '0' d
       firstOfHash    = hashBlock b `takeNElements` d
@@ -77,12 +78,12 @@ data Blockchain = Blockchain
     , difficulty :: Int
     }
 
-initBlockchain :: IO Blockchain
-initBlockchain = do
+initBlockchain :: Int -> IO Blockchain
+initBlockchain d = do
     i <- initBlock
     return $ Blockchain
-        { blocks = [i]
-        , difficulty = 0
+        { blocks = [mineBlock i d]
+        , difficulty = d
         }
 
 addBlock :: Blockchain -> IO Blockchain
@@ -95,20 +96,11 @@ addBlock (Blockchain {blocks = b, difficulty = d}) =
        new = do
            let l = last b
            stamp <- getPOSIXTime
-           return $ newBlock l stamp
+           return $ mineBlock (newBlock l stamp) d
 
 main :: IO ()
 main = do
-    time <- getPOSIXTime
-    genesis <- initBlock
-    let b = newBlock genesis time
-    let final_b = calculateNonce b 4
-    
-    putStrLn $ hashBlock b
-    putStrLn $ hashBlock final_b
-
-
-    -- chain <- initBlockchain
-    -- newChain <- addBlock chain
-    -- putStrLn . hashBlock . head . blocks $ newChain
+    chain <- initBlockchain 5
+    newChain <- addBlock chain
+    putStrLn . hashBlock . head . blocks $ newChain
     putStrLn "Runs :D"
