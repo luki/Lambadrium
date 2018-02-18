@@ -1,4 +1,4 @@
-# Revision history for Rubrum
+# Revision history for Lambdarium
 
 ## 0.1.0.0  -- YYYY-mm-dd
 

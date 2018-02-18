@@ -12,7 +12,7 @@ main = do
     putStrLn . hashBlock . head . blocks $ chain
     newChain <- addBlock chain
 
-    print $ verifyBlockchain newChain
+    -- print $ verifyBlockchain newChain
 
     putStrLn . hashBlock . head . blocks $ newChain
     putStrLn "Runs :D"

@@ -28,13 +28,13 @@ addBlock (Blockchain {blocks = b, difficulty = d}) =
            stamp <- getPOSIXTime
            return $ mineBlock (newBlock l stamp) d
 
-verifyBlocks :: [Block] -> Bool
-verifyBlocks (x:xs@((Block{prevHash = p}):_))
-    | hashBlock currentHead /= p = False
-    | otherwise = verifyBlocks currentTail
-  where currentHead   = x
-        currentTail   = xs
-verifyBlocks (x:[]) = True
-
-verifyBlockchain :: Blockchain -> Bool
-verifyBlockchain (Blockchain{blocks = b}) = verifyBlocks b
+-- verifyBlocks :: [Block] -> Bool
+-- verifyBlocks (x:xs@((Block{prevHash = p}):_))
+--     | hashBlock currentHead /= p = False
+--     | otherwise = verifyBlocks currentTail
+--   where currentHead   = x
+--         currentTail   = xs
+-- verifyBlocks (x:[]) = True
+-- --
+-- verifyBlockchain :: Blockchain -> Bool
+-- verifyBlockchain (Blockchain{blocks = b}) = verifyBlocks b
